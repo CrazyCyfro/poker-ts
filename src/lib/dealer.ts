@@ -133,7 +133,7 @@ export default class Dealer {
         // Below we take care of differentiating between check/call and bet/raise,
         // which the betting_round treats as just "match" and "raise".
         assert(player !== null)
-        if (this._bettingRound.biggestBet() - player.betSize() === 0) {
+        if (this._bettingRound.biggestBet() - player.betSize() <= 0) {
             actionRange.action |= Action.CHECK
             // Typically you can always bet or raise if you can check. Exception is if you are the big blind and have no
             // chips left after the blind has been paid, in which case you should be allowed to check but not bet or
@@ -182,7 +182,8 @@ export default class Dealer {
         const firstAction = this.nextOrWrap(bigBlindSeat)
         this.dealHoleCards()
         if (this._players.filter((player, seat) => player !== null && (player.stack() !== 0 || seat === bigBlindSeat)).length > 1) {
-            this._bettingRound = new BettingRound([...this._players], firstAction, this._forcedBets.blinds.big, this._forcedBets.blinds.big)
+            const smallBlindSeat = this._players.filter(player => player !== null).length !== 2 ? this.nextOrWrap(this._button) : this._button
+            this._bettingRound = new BettingRound([...this._players], firstAction, this._forcedBets.blinds.big, Math.max(Math.min(this._forcedBets.blinds.small, this._players[smallBlindSeat]!.totalChips()), Math.min(this._forcedBets.blinds.big, this._players[bigBlindSeat]!.totalChips())))
         }
         this._handInProgress = true
     }
