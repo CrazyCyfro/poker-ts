@@ -75,7 +75,19 @@ export default class BettingRound {
         const player = this._players[this._round.playerToAct()]
         assert(player !== null)
         const playerChips = player.totalChips()
-        const canRaise = playerChips > this._biggestBet
+        
+        // Check if all other active players are all-in
+        const otherPlayersAllIn = this._round.activePlayers().every((isActive, index) => {
+            if (!isActive || index === this._round.playerToAct()) {
+                return true // Skip inactive players and current player
+            }
+            const otherPlayer = this._players[index]
+            return otherPlayer !== null && otherPlayer.stack() === 0
+        })
+        
+        // RAISE is illegal if all other players are all-in
+        const canRaise = !otherPlayersAllIn && playerChips > this._biggestBet
+        
         if (canRaise) {
             const minBet = this._biggestBet + this._minRaise
             const raiseRange = new ChipRange(Math.min(minBet, playerChips), playerChips)

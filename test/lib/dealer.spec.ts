@@ -42,13 +42,13 @@ describe('Dealer', () => {
                 expect(dealer.bettingRoundInProgress()).toBeTruthy()
             })
 
-            test('Small blind should be allowed to fold, call, or raise', () => {
+            test('Small blind should be allowed to fold, call, but not raise', () => {
                 const { action } = dealer.legalActions()
                 expect(action & Action.FOLD).toBeTruthy()
                 expect(action & Action.CHECK).toBeFalsy()
                 expect(action & Action.CALL).toBeTruthy()
                 expect(action & Action.BET).toBeFalsy()
-                expect(action & Action.RAISE).toBeTruthy()
+                expect(action & Action.RAISE).toBeFalsy()
             })
 
             test('Betting round should still be in progress after small blind calls and big blind should be allowed to fold or check', () => {
