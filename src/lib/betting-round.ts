@@ -77,13 +77,13 @@ export default class BettingRound {
         const playerChips = player.totalChips()
         
         // Check if all other active players are all-in
-        const otherPlayersAllIn = this._round.activePlayers().every((isActive, index) => {
-            if (!isActive || index === this._round.playerToAct()) {
-                return true // Skip inactive players and current player
-            }
-            const otherPlayer = this._players[index]
-            return otherPlayer !== null && otherPlayer.stack() === 0
-        })
+        const otherPlayersAllIn = this._round.activePlayers()
+            .map((isActive, index) => ({ isActive, index }))
+            .filter(({ isActive, index }) => isActive && index !== this._round.playerToAct())
+            .every(({ index }) => {
+                const otherPlayer = this._players[index]
+                return otherPlayer !== null && otherPlayer.stack() === 0
+            })
         
         // RAISE is illegal if all other players are all-in
         const canRaise = !otherPlayersAllIn && playerChips > this._biggestBet
