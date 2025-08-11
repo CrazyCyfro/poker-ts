@@ -183,7 +183,9 @@ export default class Dealer {
         this.dealHoleCards()
         if (this._players.filter((player, seat) => player !== null && (player.stack() !== 0 || seat === bigBlindSeat)).length > 1) {
             const smallBlindSeat = this._players.filter(player => player !== null).length !== 2 ? this.nextOrWrap(this._button) : this._button
-            this._bettingRound = new BettingRound([...this._players], firstAction, this._forcedBets.blinds.big, Math.max(Math.min(this._forcedBets.blinds.small, this._players[smallBlindSeat]!.totalChips()), Math.min(this._forcedBets.blinds.big, this._players[bigBlindSeat]!.totalChips())))
+            const actualBigBlind = Math.min(this._forcedBets.blinds.big, this._players[bigBlindSeat]!.totalChips())
+            const actualSmallBlind = Math.min(this._forcedBets.blinds.small, this._players[smallBlindSeat]!.totalChips())
+            this._bettingRound = new BettingRound([...this._players], firstAction, actualBigBlind, Math.max(actualSmallBlind, actualBigBlind))
         }
         this._handInProgress = true
     }
