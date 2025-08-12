@@ -181,11 +181,32 @@ export default class Dealer {
         const bigBlindSeat = this.postBlinds()
         const firstAction = this.nextOrWrap(bigBlindSeat)
         this.dealHoleCards()
-        if (this._players.filter((player, seat) => player !== null && (player.stack() !== 0 || seat === bigBlindSeat)).length > 1) {
-            const smallBlindSeat = this._players.filter(player => player !== null).length !== 2 ? this.nextOrWrap(this._button) : this._button
+        {
+            const numPlayersAtTable = this._players.filter(player => player !== null).length
+            const smallBlindSeat = numPlayersAtTable !== 2 ? this.nextOrWrap(this._button) : this._button
             const actualBigBlind = Math.min(this._forcedBets.blinds.big, this._players[bigBlindSeat]!.totalChips())
             const actualSmallBlind = Math.min(this._forcedBets.blinds.small, this._players[smallBlindSeat]!.totalChips())
-            this._bettingRound = new BettingRound([...this._players], firstAction, actualBigBlind, Math.max(actualSmallBlind, actualBigBlind))
+
+            let shouldStartBettingRound = false
+
+            if (numPlayersAtTable === 2) {
+                // Heads-up rules:
+                // - If the big blind cannot even cover the small blind, there is no betting round.
+                // - If both players are all-in after posting blinds, there is no betting round.
+                // - Otherwise, a betting round begins (even if the big blind is all-in after posting).
+                const smallBlindPlayer = this._players[smallBlindSeat]!
+                const bigBlindPlayer = this._players[bigBlindSeat]!
+                const bothAllInAfterPosting = smallBlindPlayer.stack() === 0 && bigBlindPlayer.stack() === 0
+                shouldStartBettingRound = (actualBigBlind >= actualSmallBlind) && !bothAllInAfterPosting
+            } else {
+                // Multiway: preserve original behavior — start a betting round if more than one player
+                // would be considered in action (any player with chips or the big blind seat).
+                shouldStartBettingRound = this._players.filter((player, seat) => player !== null && (player.stack() !== 0 || seat === bigBlindSeat)).length > 1
+            }
+
+            if (shouldStartBettingRound) {
+                this._bettingRound = new BettingRound([...this._players], firstAction, actualBigBlind, Math.max(actualSmallBlind, actualBigBlind))
+            }
         }
         this._handInProgress = true
     }
