@@ -191,13 +191,14 @@ export default class Dealer {
 
             if (numPlayersAtTable === 2) {
                 // Heads-up rules:
-                // - If the big blind cannot even cover the small blind, there is no betting round.
-                // - If both players are all-in after posting blinds, there is no betting round.
-                // - Otherwise, a betting round begins (even if the big blind is all-in after posting).
+                // - Start a betting round if the posted big blind is strictly greater than the posted small blind
+                //   and not both players are all-in after posting blinds.
+                //   This covers cases where BB < full BB but > SB (short-stacked BB) where play should proceed,
+                //   and prevents starting when BB <= SB or both are all-in after posting.
                 const smallBlindPlayer = this._players[smallBlindSeat]!
                 const bigBlindPlayer = this._players[bigBlindSeat]!
                 const bothAllInAfterPosting = smallBlindPlayer.stack() === 0 && bigBlindPlayer.stack() === 0
-                shouldStartBettingRound = (actualBigBlind >= actualSmallBlind) && !bothAllInAfterPosting
+                shouldStartBettingRound = (actualBigBlind > actualSmallBlind) && !bothAllInAfterPosting
             } else {
                 // Multiway: preserve original behavior — start a betting round if more than one player
                 // would be considered in action (any player with chips or the big blind seat).
