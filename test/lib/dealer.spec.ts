@@ -48,7 +48,7 @@ describe('Dealer', () => {
                 expect(action & Action.CHECK).toBeFalsy()
                 expect(action & Action.CALL).toBeTruthy()
                 expect(action & Action.BET).toBeFalsy()
-                expect(action & Action.RAISE).toBeFalsy()
+                expect(action & Action.RAISE).toBeFalsy() // cannot raise
             })
 
             test('Betting round should still be in progress after small blind calls and big blind should be allowed to fold or check', () => {
@@ -105,6 +105,34 @@ describe('Dealer', () => {
             beforeEach(() => {
                 players = new Array(9).fill(null)
                 players[0] = new Player(20)
+                players[1] = new Player(20)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+            })
+
+            describe('The hand starts', () => {
+                beforeEach(() => {
+                    dealer.startHand()
+                })
+
+                test('The betting round is not in progress', () => {
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                    dealer.endBettingRound()
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                    expect(dealer.bettingRoundsCompleted()).toBeTruthy()
+                    expect(dealer.roundOfBetting()).toBe(RoundOfBetting.RIVER)
+                    dealer.showdown()
+                    expect(dealer.handInProgress()).toBeFalsy()
+                })
+
+            })
+        })
+
+        describe('A hand with two players, where the big blind doesn\'t have enough to cover the small blind', () => {
+            let players: SeatArray
+            let dealer: Dealer
+            beforeEach(() => {
+                players = new Array(9).fill(null)
+                players[0] = new Player(100)
                 players[1] = new Player(20)
                 dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
             })
