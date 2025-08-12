@@ -207,6 +207,8 @@ export default class Dealer {
 
             if (shouldStartBettingRound) {
                 this._bettingRound = new BettingRound([...this._players], firstAction, actualBigBlind, Math.max(actualSmallBlind, actualBigBlind))
+            } else {
+                this._bettingRound = null
             }
         }
         this._handInProgress = true
