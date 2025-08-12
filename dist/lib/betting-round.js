@@ -79,10 +79,24 @@ var BettingRound = /** @class */ (function () {
         return this._round.numActivePlayers();
     };
     BettingRound.prototype.legalActions = function () {
+        var _this = this;
         var player = this._players[this._round.playerToAct()];
         assert_1.default(player !== null);
         var playerChips = player.totalChips();
-        var canRaise = playerChips > this._biggestBet;
+        // Check if all other active players are all-in
+        var otherPlayersAllIn = this._round.activePlayers()
+            .map(function (isActive, index) { return ({ isActive: isActive, index: index }); })
+            .filter(function (_a) {
+            var isActive = _a.isActive, index = _a.index;
+            return isActive && index !== _this._round.playerToAct();
+        })
+            .every(function (_a) {
+            var index = _a.index;
+            var otherPlayer = _this._players[index];
+            return otherPlayer !== null && otherPlayer.stack() === 0;
+        });
+        // RAISE is illegal if all other players are all-in
+        var canRaise = !otherPlayersAllIn && playerChips > this._biggestBet;
         if (canRaise) {
             var minBet = this._biggestBet + this._minRaise;
             var raiseRange = new chip_range_1.default(Math.min(minBet, playerChips), playerChips);

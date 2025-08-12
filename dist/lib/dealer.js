@@ -136,7 +136,7 @@ var Dealer = /** @class */ (function () {
         // Below we take care of differentiating between check/call and bet/raise,
         // which the betting_round treats as just "match" and "raise".
         assert_1.default(player !== null);
-        if (this._bettingRound.biggestBet() - player.betSize() === 0) {
+        if (this._bettingRound.biggestBet() - player.betSize() <= 0) {
             actionRange.action |= Action.CHECK;
             // Typically you can always bet or raise if you can check. Exception is if you are the big blind and have no
             // chips left after the blind has been paid, in which case you should be allowed to check but not bet or
@@ -180,8 +180,34 @@ var Dealer = /** @class */ (function () {
         var bigBlindSeat = this.postBlinds();
         var firstAction = this.nextOrWrap(bigBlindSeat);
         this.dealHoleCards();
-        if (this._players.filter(function (player, seat) { return player !== null && (player.stack() !== 0 || seat === bigBlindSeat); }).length > 1) {
-            this._bettingRound = new betting_round_1.default(__spreadArray([], this._players), firstAction, this._forcedBets.blinds.big, this._forcedBets.blinds.big);
+        {
+            var numPlayersAtTable = this._players.filter(function (player) { return player !== null; }).length;
+            var smallBlindSeat = numPlayersAtTable !== 2 ? this.nextOrWrap(this._button) : this._button;
+            var actualBigBlind = Math.min(this._forcedBets.blinds.big, this._players[bigBlindSeat].totalChips());
+            var actualSmallBlind = Math.min(this._forcedBets.blinds.small, this._players[smallBlindSeat].totalChips());
+            var shouldStartBettingRound = false;
+            if (numPlayersAtTable === 2) {
+                // Heads-up rules:
+                // - Start a betting round if the posted big blind is strictly greater than the posted small blind
+                //   and not both players are all-in after posting blinds.
+                //   This covers cases where BB < full BB but > SB (short-stacked BB) where play should proceed,
+                //   and prevents starting when BB <= SB or both are all-in after posting.
+                var smallBlindPlayer = this._players[smallBlindSeat];
+                var bigBlindPlayer = this._players[bigBlindSeat];
+                var bothAllInAfterPosting = smallBlindPlayer.stack() === 0 && bigBlindPlayer.stack() === 0;
+                shouldStartBettingRound = (actualBigBlind > actualSmallBlind) && !bothAllInAfterPosting;
+            }
+            else {
+                // Multiway: preserve original behavior — start a betting round if more than one player
+                // would be considered in action (any player with chips or the big blind seat).
+                shouldStartBettingRound = this._players.filter(function (player, seat) { return player !== null && (player.stack() !== 0 || seat === bigBlindSeat); }).length > 1;
+            }
+            if (shouldStartBettingRound) {
+                this._bettingRound = new betting_round_1.default(__spreadArray([], this._players), firstAction, actualBigBlind, Math.max(actualSmallBlind, actualBigBlind));
+            }
+            else {
+                this._bettingRound = null;
+            }
         }
         this._handInProgress = true;
     };
