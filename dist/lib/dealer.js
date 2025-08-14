@@ -188,14 +188,13 @@ var Dealer = /** @class */ (function () {
             var shouldStartBettingRound = false;
             if (numPlayersAtTable === 2) {
                 // Heads-up rules:
-                // - Start a betting round if the posted big blind is strictly greater than the posted small blind
-                //   and not both players are all-in after posting blinds.
-                //   This covers cases where BB < full BB but > SB (short-stacked BB) where play should proceed,
-                //   and prevents starting when BB <= SB or both are all-in after posting.
+                // Start a betting round only if:
+                // - The posted big blind is strictly greater than the posted small blind, AND
+                // - The small blind is not all-in after posting.
+                // This allows action when BB < full BB but > SB (short-stacked BB),
+                // but prevents action when SB is all-in (no meaningful response possible heads-up).
                 var smallBlindPlayer = this._players[smallBlindSeat];
-                var bigBlindPlayer = this._players[bigBlindSeat];
-                var bothAllInAfterPosting = smallBlindPlayer.stack() === 0 && bigBlindPlayer.stack() === 0;
-                shouldStartBettingRound = (actualBigBlind > actualSmallBlind) && !bothAllInAfterPosting;
+                shouldStartBettingRound = (actualBigBlind > actualSmallBlind) && (smallBlindPlayer.stack() > 0);
             }
             else {
                 // Multiway: preserve original behavior — start a betting round if more than one player

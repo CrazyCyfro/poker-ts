@@ -232,6 +232,62 @@ describe('Dealer', () => {
             })
         })
 
+        describe('A hand with two players, where the small blind has exactly enough to cover, and the big blind has more than enough to cover their blind', () => {
+            let players: SeatArray
+            let dealer: Dealer
+            beforeEach(() => {
+                players = new Array(9).fill(null)
+                players[0] = new Player(25)
+                players[1] = new Player(100)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+            })
+
+            describe('The hand starts', () => {
+                beforeEach(() => {
+                    dealer.startHand()
+                })
+
+                test('The betting round is not in progress', () => {
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                    dealer.endBettingRound()
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                    expect(dealer.bettingRoundsCompleted()).toBeTruthy()
+                    expect(dealer.roundOfBetting()).toBe(RoundOfBetting.RIVER)
+                    dealer.showdown()
+                    expect(dealer.handInProgress()).toBeFalsy()
+                })
+
+            })
+        })
+
+        describe('A hand with two players, where the small blind cannot cover their blind, and the big blind has more than enough to cover their blind', () => {
+            let players: SeatArray
+            let dealer: Dealer
+            beforeEach(() => {
+                players = new Array(9).fill(null)
+                players[0] = new Player(20)
+                players[1] = new Player(100)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+            })
+
+            describe('The hand starts', () => {
+                beforeEach(() => {
+                    dealer.startHand()
+                })
+
+                test('The betting round is not in progress', () => {
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                    dealer.endBettingRound()
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                    expect(dealer.bettingRoundsCompleted()).toBeTruthy()
+                    expect(dealer.roundOfBetting()).toBe(RoundOfBetting.RIVER)
+                    dealer.showdown()
+                    expect(dealer.handInProgress()).toBeFalsy()
+                })
+
+            })
+        })
+
         describe('A hand with more than two players', () => {
             let players: SeatArray
             let dealer: Dealer
