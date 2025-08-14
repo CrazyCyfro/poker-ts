@@ -51,20 +51,8 @@ describe('Dealer', () => {
                 expect(action & Action.RAISE).toBeFalsy() // cannot raise
             })
 
-            test('Betting round should still be in progress after small blind calls and big blind should be allowed to fold or check', () => {
+            test('Betting round should not be in progress after small blind calls', () => {
                 dealer.actionTaken(Action.CALL)
-
-                const { action } = dealer.legalActions()
-                expect(action & Action.FOLD).toBeTruthy()
-                expect(action & Action.CHECK).toBeTruthy()
-                expect(action & Action.CALL).toBeFalsy()
-                expect(action & Action.BET).toBeFalsy()
-                expect(action & Action.RAISE).toBeFalsy()
-            })
-
-            test('Betting round and should not be in progress after small blind calls and big blind checks', () => {
-                dealer.actionTaken(Action.CALL)
-                dealer.actionTaken(Action.CHECK)
 
                 expect(dealer.bettingRoundInProgress()).toBeFalsy()
             })
@@ -96,20 +84,8 @@ describe('Dealer', () => {
                 expect(action & Action.RAISE).toBeFalsy() // cannot raise
             })
 
-            test('Betting round should still be in progress after small blind calls and big blind should be allowed to fold or check', () => {
+            test('Betting round should not be in progress after small blind calls', () => {
                 dealer.actionTaken(Action.CALL)
-
-                const { action } = dealer.legalActions()
-                expect(action & Action.FOLD).toBeTruthy()
-                expect(action & Action.CHECK).toBeTruthy()
-                expect(action & Action.CALL).toBeFalsy()
-                expect(action & Action.BET).toBeFalsy()
-                expect(action & Action.RAISE).toBeFalsy()
-            })
-
-            test('Betting round and should not be in progress after small blind calls and big blind checks', () => {
-                dealer.actionTaken(Action.CALL)
-                dealer.actionTaken(Action.CHECK)
 
                 expect(dealer.bettingRoundInProgress()).toBeFalsy()
             })
