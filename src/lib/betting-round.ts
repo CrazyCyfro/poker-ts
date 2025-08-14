@@ -38,7 +38,33 @@ export default class BettingRound {
     }
 
     inProgress(): boolean {
-        return this._round.inProgress()
+        // Delegate base condition
+        if (!this._round.inProgress()) return false
+
+        // Multiway-safe early termination:
+        // If from the current player up to (but not including) the last aggressive actor
+        // every active player is already all-in AND has matched the biggest bet, then
+        // there is no further action possible and the round is effectively complete.
+        const active = this._round.activePlayers()
+        const start = this._round.playerToAct()
+        const end = this._round.lastAggressiveActor()
+
+        let index = start
+        // Iterate through remaining turn order until we would return to last aggressor
+        // If any player can take action (has chips or hasn't matched), the round continues
+        do {
+            if (active[index]) {
+                const p = this._players[index]
+                if (p !== null) {
+                    const canAct = p.stack() > 0 || p.betSize() < this._biggestBet
+                    if (canAct) return true
+                }
+            }
+            index = index + 1
+            if (index === active.length) index = 0
+        } while (index !== end)
+
+        return false
     }
 
     isContested(): boolean {

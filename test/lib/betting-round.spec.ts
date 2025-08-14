@@ -204,4 +204,40 @@ describe('Betting round', () => {
             })
         })
     })
+
+    describe('early termination when remaining players are all-in and matched', () => {
+        let players: SeatArray
+        let round: BettingRound
+        beforeEach(() => {
+            players = new Array(9).fill(null)
+            // Seats 0, 2, 3 are all-in and have matched the biggest bet (100)
+            players[0] = new Player(100)
+            players[0]?.bet(100)
+            players[1] = new Player(1000) // will act and match to 100
+            players[2] = new Player(100)
+            players[2]?.bet(100)
+            players[3] = new Player(100)
+            players[3]?.bet(100)
+
+            // First to act is seat 1; last aggressive actor initially equals firstToAct inside Round.
+            // Biggest bet is 100, min raise is 50 (irrelevant here since we only MATCH).
+            round = new BettingRound(players, 1, 50, 100)
+        })
+
+        test('betting round ends after seat 1 matches because all remaining players are all-in and matched', () => {
+            // Preconditions
+            expect(round.playerToAct()).toBe(1)
+            expect(round.biggestBet()).toBe(100)
+            expect(players[0]?.stack()).toBe(0)
+            expect(players[2]?.stack()).toBe(0)
+            expect(players[3]?.stack()).toBe(0)
+
+            // Seat 1 matches to 100
+            round.actionTaken(BettingRoundAction.MATCH)
+
+            // Now action would move to seat 2, but since seats 2, 3, 0 are all-in and already matched,
+            // the betting round should be considered complete.
+            expect(round.inProgress()).toBeFalsy()
+        })
+    })
 })
