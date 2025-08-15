@@ -318,6 +318,38 @@ describe('Dealer', () => {
                 })
             })
         })
+
+        describe('A hand with more than two players, small blind and big blind have just enough to cover their blinds', () => {
+            let players: SeatArray
+            let dealer: Dealer
+            beforeEach(() => {
+                players = new Array(9).fill(null)
+                players[0] = new Player(100)
+                players[1] = new Player(25)
+                players[2] = new Player(50)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+            })
+
+            describe('The hand starts', () => {
+                beforeEach(() => {
+                    dealer.startHand()
+                })
+
+                test('The button+1 has posted the small blind', () => {
+                    expect(players[1]?.betSize()).toBe(25)
+                })
+
+                test('The button+2 has posted the big blind', () => {
+                    expect(players[2]?.betSize()).toBe(50)
+                })
+
+                test('The action is on the button+3', () => {
+                    expect(dealer.playerToAct()).toBe(0)
+                    dealer.actionTaken(Action.CALL)
+                    expect(dealer.bettingRoundInProgress()).toBeFalsy()
+                })
+            })
+        })
     })
 
     describe('Ending the betting round', () => {

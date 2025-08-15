@@ -56,7 +56,9 @@ export default class BettingRound {
             if (active[index]) {
                 const p = this._players[index]
                 if (p !== null) {
-                    const canAct = p.stack() > 0 || p.betSize() < this._biggestBet
+                    // A player can act if they have chips left AND haven't matched the biggest bet
+                    // OR if they have chips left and can raise
+                    const canAct = p.stack() > 0 && (p.betSize() < this._biggestBet || p.totalChips() > this._biggestBet)
                     if (canAct) return true
                 }
             }
