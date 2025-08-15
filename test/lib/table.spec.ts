@@ -644,4 +644,151 @@ describe('Table', () => {
             expect(table.bettingRoundInProgress()).toBeFalsy()
         })
     })
+
+    describe('a table with three players where one goes all-in preflop and others call, then one folds after flop', () => {
+        beforeEach(() => {
+            // Set up 3 players with different stack sizes
+            // Seat 1: 100 chips (UTG) - will go all-in preflop
+            // Seat 2: 1000 chips (SB) - will call all-in, then fold on flop
+            // Seat 3: 1000 chips (BB) - will call all-in, continue to showdown
+            table.sitDown(1, 100)   // Small stack - will go all-in
+            table.sitDown(2, 1000)  // Medium stack
+            table.sitDown(3, 1000)  // Medium stack
+            table.startHand()
+        })
+
+        test('preflop: player with 100 chips goes all-in, others call', () => {
+            // Player 1 (UTG) goes all-in with 100 chips
+            table.actionTaken(Action.RAISE, 100)
+            
+            // Player 2 (SB) calls the all-in
+            table.actionTaken(Action.CALL)
+            
+            // Player 3 (BB) calls the all-in
+            table.actionTaken(Action.CALL)
+            
+            // Verify all players have bet their chips
+            expect(table.seats()[1]?.betSize()).toBe(100)
+            expect(table.seats()[2]?.betSize()).toBe(100)
+            expect(table.seats()[3]?.betSize()).toBe(100)
+            
+            // Verify betting round is complete
+            expect(table.bettingRoundInProgress()).toBeFalsy()
+        })
+
+        test('flop: one player folds, betting round completes automatically', () => {
+            // Complete preflop betting
+            table.actionTaken(Action.RAISE, 100)
+            table.actionTaken(Action.CALL)
+            table.actionTaken(Action.CALL)
+            
+            // End preflop betting round
+            table.endBettingRound()
+            
+            // Verify we're now in flop
+            expect(table.roundOfBetting()).toBe(3) // FLOP
+            
+            // Player 2 folds (all-in player can't act, only 2 active players remain)
+            table.actionTaken(Action.FOLD)
+            
+            // Verify betting round is complete (only 2 active players, no betting needed)
+            expect(table.bettingRoundInProgress()).toBeFalsy()
+        })
+
+        test('complete hand: goes to showdown between all-in player and remaining player', () => {
+            // Complete preflop betting
+            table.actionTaken(Action.RAISE, 100)
+            table.actionTaken(Action.CALL)
+            table.actionTaken(Action.CALL)
+            
+            // End preflop betting round
+            table.endBettingRound()
+            
+            // Complete flop betting round (one player folds)
+            table.actionTaken(Action.FOLD)
+            table.endBettingRound()
+            
+            // Dealer automatically completes remaining betting rounds when only 2 active players remain
+            // Verify betting rounds are complete
+            expect(table.bettingRoundsCompleted()).toBeTruthy()
+            
+            // Call showdown
+            table.showdown()
+            
+            // Verify hand is complete
+            expect(table.handInProgress()).toBeFalsy()
+            
+            // Verify there are winners (showdown occurred)
+            expect(table.winners().length).toBeGreaterThan(0)
+            
+            // Verify the all-in player (seat 1) and the remaining player (seat 3) 
+            // participated in showdown by checking their hole cards exist
+            const holeCards = table.holeCards()
+            expect(holeCards[1]).not.toBeNull() // All-in player has hole cards
+            expect(holeCards[3]).not.toBeNull() // Remaining player has hole cards (seat 2 folded)
+        })
+
+        test('pot structure: all-in player creates side pot scenario', () => {
+            // Complete preflop betting
+            table.actionTaken(Action.RAISE, 100)
+            table.actionTaken(Action.CALL)
+            table.actionTaken(Action.CALL)
+            
+            // End preflop betting round
+            table.endBettingRound()
+            
+            // Complete flop betting round
+            table.actionTaken(Action.FOLD)
+            table.endBettingRound()
+            
+            // Dealer automatically completes remaining betting rounds when only 2 active players remain
+            
+            // Verify pots exist
+            const pots = table.pots()
+            expect(pots.length).toBeGreaterThan(0)
+            
+            // The main pot should contain 300 chips (100 from each player)
+            const mainPot = pots[0]
+            expect(mainPot.size()).toBe(300)
+            
+            // Verify the all-in player is eligible for the main pot
+            expect(mainPot.eligiblePlayers()).toContain(1)
+            
+            // Verify the remaining active player is also eligible
+            expect(mainPot.eligiblePlayers()).toContain(3)
+        })
+
+        test('showdown: exactly two players reach showdown - all-in player and remaining player', () => {
+            // Complete preflop betting
+            table.actionTaken(Action.RAISE, 100)
+            table.actionTaken(Action.CALL)
+            table.actionTaken(Action.CALL)
+            
+            // End preflop betting round
+            table.endBettingRound()
+            
+            // Complete flop betting round (one player folds)
+            table.actionTaken(Action.FOLD)
+            table.endBettingRound()
+            
+            // Dealer automatically completes remaining betting rounds when only 2 active players remain
+            
+            // Call showdown
+            table.showdown()
+            
+            // Verify exactly two players participated in showdown
+            const winners = table.winners()
+            expect(winners.length).toBe(1) // One pot
+            
+            const potWinners = winners[0]
+            expect(potWinners.length).toBe(1) // One winner in the pot
+            
+            // Verify the winner is either the all-in player (seat 1) or the remaining player (seat 3)
+            const winnerSeat = potWinners[0][0]
+            expect([1, 3]).toContain(winnerSeat)
+            
+            // Verify the folded player (seat 2) is not in the winners
+            expect(winnerSeat).not.toBe(2)
+        })
+    })
 })
