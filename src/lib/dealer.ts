@@ -251,8 +251,8 @@ export default class Dealer {
         } else if (this._roundOfBetting < RoundOfBetting.RIVER) {
             // Start the next betting round.
             this._roundOfBetting = next(this._roundOfBetting)
-            this._players = this._bettingRound?.players() ?? []
-            this._bettingRound = new BettingRound([...this._players], this.nextOrWrap(this._button), this._forcedBets.blinds.big)
+            const nextRoundPlayers = this._bettingRound?.players() ?? []
+            this._bettingRound = new BettingRound([...nextRoundPlayers], this.nextOrWrap(this._button), this._forcedBets.blinds.big)
             this.dealCommunityCards()
             assert(!this._bettingRoundsCompleted)
         } else {
