@@ -166,7 +166,8 @@ export default class Hand {
         if (count === 4) {
             cards = [
                 ...cards.slice(0, 4),
-                ...cards.slice(5).sort((c1, c2) => c2.rank - c1.rank),
+                // Include the highest remaining card as the kicker (use slice(4) not slice(5))
+                ...cards.slice(4).sort((c1, c2) => c2.rank - c1.rank),
             ]
             ranking = HandRanking.FOUR_OF_A_KIND
         } else if (count === 3) {

@@ -9,6 +9,12 @@ import {
     shuffleForThreePlayersWithTwoWinners,
     shuffleForTwoPlayersDraw,
     shuffleForTwoPlayersWithFullHouseWinner,
+    shuffleForTwoPlayersBoardRoyalFlush,
+    shuffleForTwoPlayersBoardStraightFlush,
+    shuffleForTwoPlayersBoardQuads,
+    shuffleForTwoPlayersBoardFullHouse,
+    shuffleForTwoPlayersBoardFlush,
+    shuffleForTwoPlayersBoardStraight,
 } from '../helper/card'
 import {HandRanking} from '../../src/lib/hand'
 
@@ -757,6 +763,264 @@ describe('Dealer', () => {
             })
 
             test('pot has been divided equally', () => {
+                expect(players[0]?.stack()).toBe(1000)
+                expect(players[1]?.stack()).toBe(1000)
+            })
+        })
+
+        describe('board royal flush chops', () => {
+            let forcedBets: ForcedBets
+            let deck: Deck
+            let communityCards: CommunityCards
+            let players: SeatArray
+            let dealer: Dealer
+
+            beforeEach(() => {
+                forcedBets = { blinds: { big: 50, small: 25 } }
+                deck = new Deck(shuffleForTwoPlayersBoardRoyalFlush)
+                communityCards = new CommunityCards()
+                players = new Array(9).fill(null)
+                players[0] = new Player(1000)
+                players[1] = new Player(1000)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+
+                dealer.startHand()
+
+                dealer.actionTaken(Action.RAISE, 500)
+                dealer.actionTaken(Action.CALL)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.showdown()
+            })
+
+            test('pot has been divided equally (royal flush on board)', () => {
+                expect(players[0]?.stack()).toBe(1000)
+                expect(players[1]?.stack()).toBe(1000)
+            })
+        })
+
+        describe('board straight flush chops', () => {
+            let forcedBets: ForcedBets
+            let deck: Deck
+            let communityCards: CommunityCards
+            let players: SeatArray
+            let dealer: Dealer
+
+            beforeEach(() => {
+                forcedBets = { blinds: { big: 50, small: 25 } }
+                deck = new Deck(shuffleForTwoPlayersBoardStraightFlush)
+                communityCards = new CommunityCards()
+                players = new Array(9).fill(null)
+                players[0] = new Player(1000)
+                players[1] = new Player(1000)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+
+                dealer.startHand()
+
+                dealer.actionTaken(Action.RAISE, 500)
+                dealer.actionTaken(Action.CALL)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.showdown()
+            })
+
+            test('pot has been divided equally (straight flush on board)', () => {
+                expect(players[0]?.stack()).toBe(1000)
+                expect(players[1]?.stack()).toBe(1000)
+            })
+        })
+
+        describe('board quads chops', () => {
+            let forcedBets: ForcedBets
+            let deck: Deck
+            let communityCards: CommunityCards
+            let players: SeatArray
+            let dealer: Dealer
+
+            beforeEach(() => {
+                forcedBets = { blinds: { big: 50, small: 25 } }
+                deck = new Deck(shuffleForTwoPlayersBoardQuads)
+                communityCards = new CommunityCards()
+                players = new Array(9).fill(null)
+                players[0] = new Player(1000)
+                players[1] = new Player(1000)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+
+                dealer.startHand()
+
+                dealer.actionTaken(Action.RAISE, 500)
+                dealer.actionTaken(Action.CALL)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.showdown()
+            })
+
+            test('pot has been divided equally (four of a kind on board)', () => {
+                expect(players[0]?.stack()).toBe(1000)
+                expect(players[1]?.stack()).toBe(1000)
+            })
+        })
+
+        describe('board full house chops', () => {
+            let forcedBets: ForcedBets
+            let deck: Deck
+            let communityCards: CommunityCards
+            let players: SeatArray
+            let dealer: Dealer
+
+            beforeEach(() => {
+                forcedBets = { blinds: { big: 50, small: 25 } }
+                deck = new Deck(shuffleForTwoPlayersBoardFullHouse)
+                communityCards = new CommunityCards()
+                players = new Array(9).fill(null)
+                players[0] = new Player(1000)
+                players[1] = new Player(1000)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+
+                dealer.startHand()
+
+                dealer.actionTaken(Action.RAISE, 500)
+                dealer.actionTaken(Action.CALL)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.showdown()
+            })
+
+            test('pot has been divided equally (full house on board)', () => {
+                expect(players[0]?.stack()).toBe(1000)
+                expect(players[1]?.stack()).toBe(1000)
+            })
+        })
+
+        describe('board flush chops', () => {
+            let forcedBets: ForcedBets
+            let deck: Deck
+            let communityCards: CommunityCards
+            let players: SeatArray
+            let dealer: Dealer
+
+            beforeEach(() => {
+                forcedBets = { blinds: { big: 50, small: 25 } }
+                deck = new Deck(shuffleForTwoPlayersBoardFlush)
+                communityCards = new CommunityCards()
+                players = new Array(9).fill(null)
+                players[0] = new Player(1000)
+                players[1] = new Player(1000)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+
+                dealer.startHand()
+
+                dealer.actionTaken(Action.RAISE, 500)
+                dealer.actionTaken(Action.CALL)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.showdown()
+            })
+
+            test('pot has been divided equally (flush on board)', () => {
+                expect(players[0]?.stack()).toBe(1000)
+                expect(players[1]?.stack()).toBe(1000)
+            })
+        })
+
+        describe('board straight chops', () => {
+            let forcedBets: ForcedBets
+            let deck: Deck
+            let communityCards: CommunityCards
+            let players: SeatArray
+            let dealer: Dealer
+
+            beforeEach(() => {
+                forcedBets = { blinds: { big: 50, small: 25 } }
+                deck = new Deck(shuffleForTwoPlayersBoardStraight)
+                communityCards = new CommunityCards()
+                players = new Array(9).fill(null)
+                players[0] = new Player(1000)
+                players[1] = new Player(1000)
+                dealer = new Dealer(players, 0, forcedBets, deck, communityCards)
+
+                dealer.startHand()
+
+                dealer.actionTaken(Action.RAISE, 500)
+                dealer.actionTaken(Action.CALL)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.actionTaken(Action.CHECK)
+                dealer.actionTaken(Action.CHECK)
+                dealer.endBettingRound()
+
+                dealer.showdown()
+            })
+
+            test('pot has been divided equally (straight on board)', () => {
                 expect(players[0]?.stack()).toBe(1000)
                 expect(players[1]?.stack()).toBe(1000)
             })
