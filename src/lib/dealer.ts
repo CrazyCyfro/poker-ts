@@ -43,7 +43,6 @@ export default class Dealer {
     private readonly _communityCards: CommunityCards
     private readonly _holeCards: HoleCards[]
     private _players: SeatArray
-    private _originalPlayers: SeatArray // Keep original player array for pot calculations
     private _bettingRound: BettingRound | null = null
     private _forcedBets: ForcedBets
     private _deck: Deck
@@ -55,7 +54,6 @@ export default class Dealer {
 
     constructor(players: SeatArray, button: SeatIndex, forcedBets: ForcedBets, deck: Deck, communityCards: CommunityCards, numSeats: number = 9) {
         this._players = players
-        this._originalPlayers = [...players] // Keep a copy of the original player array
         this._button = button
         this._forcedBets = forcedBets
         this._deck = deck
@@ -179,8 +177,6 @@ export default class Dealer {
         this._bettingRoundsCompleted = false
         this._roundOfBetting = RoundOfBetting.PREFLOP
         this._winners = []
-        // Reset the original players array for the new hand
-        this._originalPlayers = [...this._players]
         this.collectAnte()
         const bigBlindSeat = this.postBlinds()
         const firstAction = this.nextOrWrap(bigBlindSeat)
@@ -241,8 +237,7 @@ export default class Dealer {
         assert(!this._bettingRoundsCompleted, 'Betting rounds must not be completed')
         assert(!this.bettingRoundInProgress(), 'Betting round must not be in progress')
 
-        // Use original player array for pot calculations to avoid corruption from folds
-        this._potManager.collectBetsForm(this._originalPlayers)
+        this._potManager.collectBetsForm(this._players)
         if ((this._bettingRound?.numActivePlayers() ?? 0) <= 1) {
             this._roundOfBetting = RoundOfBetting.RIVER
             // If there is only one pot, and there is only one player in it...
@@ -256,8 +251,8 @@ export default class Dealer {
         } else if (this._roundOfBetting < RoundOfBetting.RIVER) {
             // Start the next betting round.
             this._roundOfBetting = next(this._roundOfBetting)
-            const nextRoundPlayers = this._bettingRound?.players() ?? []
-            this._bettingRound = new BettingRound([...nextRoundPlayers], this.nextOrWrap(this._button), this._forcedBets.blinds.big)
+            this._players = this._bettingRound?.players() ?? []
+            this._bettingRound = new BettingRound([...this._players], this.nextOrWrap(this._button), this._forcedBets.blinds.big)
             this.dealCommunityCards()
             assert(!this._bettingRoundsCompleted)
         } else {
