@@ -44,15 +44,12 @@ export default class Pot {
             }, firstBetter.betSize())
 
             // Deduct that bet from all the players, and add it to the pot.
-            // Do NOT reset _eligiblePlayers here. Instead, add to it only players who are not already eligible.
+            this._eligiblePlayers = []
             players.forEach((player, index) => {
                 if (player !== null && player.betSize() !== 0) {
                     player.takeFromBet(minBet);
                     this._size += minBet;
-                    // Add player to eligiblePlayers if not already present
-                    if (!this._eligiblePlayers.includes(index)) {
-                        this._eligiblePlayers.push(index);
-                    }
+                    this._eligiblePlayers.push(index);
                 }
             })
 

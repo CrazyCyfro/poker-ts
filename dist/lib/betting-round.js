@@ -69,9 +69,7 @@ var BettingRound = /** @class */ (function () {
             if (active[index]) {
                 var p = this._players[index];
                 if (p !== null) {
-                    // A player can act if they have chips left AND haven't matched the biggest bet
-                    // OR if they have chips left and can raise
-                    var canAct = p.stack() > 0 && (p.betSize() < this._biggestBet || p.totalChips() > this._biggestBet);
+                    var canAct = p.stack() > 0 || p.betSize() < this._biggestBet;
                     if (canAct)
                         return true;
                 }

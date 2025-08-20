@@ -240,11 +240,10 @@ export default class Dealer {
         this._potManager.collectBetsForm(this._players)
         if ((this._bettingRound?.numActivePlayers() ?? 0) <= 1) {
             this._roundOfBetting = RoundOfBetting.RIVER
-            // If there are multiple players who are still in the hand (not folded),
-            // we need to deal the undealt community cards, even if betting is complete.
-            const playersInHandCount = this._players.filter(player => player !== null).length;
-
-            if (playersInHandCount > 1) {
+            // If there is only one pot, and there is only one player in it...
+            if (this._potManager.pots().length === 1 && this._potManager.pots()[0].eligiblePlayers().length === 1) {
+                // ...there is no need to deal the undealt community cards.
+            } else {
                 this.dealCommunityCards()
             }
             this._bettingRoundsCompleted = true
