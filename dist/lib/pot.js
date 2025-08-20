@@ -44,12 +44,15 @@ var Pot = /** @class */ (function () {
                 return acc;
             }, firstBetter.betSize());
             // Deduct that bet from all the players, and add it to the pot.
-            this._eligiblePlayers = [];
+            // Do NOT reset _eligiblePlayers here. Instead, add to it only players who are not already eligible.
             players.forEach(function (player, index) {
                 if (player !== null && player.betSize() !== 0) {
                     player.takeFromBet(minBet_1);
                     _this._size += minBet_1;
-                    _this._eligiblePlayers.push(index);
+                    // Add player to eligiblePlayers if not already present
+                    if (!_this._eligiblePlayers.includes(index)) {
+                        _this._eligiblePlayers.push(index);
+                    }
                 }
             });
             return minBet_1;

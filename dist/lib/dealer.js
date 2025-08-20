@@ -237,11 +237,10 @@ var Dealer = /** @class */ (function () {
         this._potManager.collectBetsForm(this._players);
         if (((_b = (_a = this._bettingRound) === null || _a === void 0 ? void 0 : _a.numActivePlayers()) !== null && _b !== void 0 ? _b : 0) <= 1) {
             this._roundOfBetting = community_cards_1.RoundOfBetting.RIVER;
-            // If there is only one pot, and there is only one player in it...
-            if (this._potManager.pots().length === 1 && this._potManager.pots()[0].eligiblePlayers().length === 1) {
-                // ...there is no need to deal the undealt community cards.
-            }
-            else {
+            // If there are multiple players who are still in the hand (not folded),
+            // we need to deal the undealt community cards, even if betting is complete.
+            var playersInHandCount = this._players.filter(function (player) { return player !== null; }).length;
+            if (playersInHandCount > 1) {
                 this.dealCommunityCards();
             }
             this._bettingRoundsCompleted = true;

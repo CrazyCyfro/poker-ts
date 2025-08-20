@@ -167,7 +167,7 @@ var Hand = /** @class */ (function () {
         var ranking;
         var count = Hand.nextRank(cards).count;
         if (count === 4) {
-            cards = __spreadArray(__spreadArray([], cards.slice(0, 4)), cards.slice(5).sort(function (c1, c2) { return c2.rank - c1.rank; }));
+            cards = __spreadArray(__spreadArray([], cards.slice(0, 4)), cards.slice(4).sort(function (c1, c2) { return c2.rank - c1.rank; }));
             ranking = HandRanking.FOUR_OF_A_KIND;
         }
         else if (count === 3) {
